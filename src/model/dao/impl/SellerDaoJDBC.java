@@ -108,7 +108,47 @@ public class SellerDaoJDBC implements SellerDao {
     @Override
     public List<Seller> findAll()
     {
-        return null;
+        System.out.println("[LOG] Iniciando a busca por Departamento");
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try
+        {
+            System.out.println("[LOG] Iniciando SQL da busca por Departamento");
+            st = conn.prepareStatement(
+                    "SELECT seller.*,department.Name as DepName " +
+                            "FROM seller INNER JOIN department " +
+                            "ON seller.DepartmentId = department.Id " +
+                            "ORDER BY Name");
+            System.out.println("[LOG] Executando query da busca por Departamento");
+            rs = st.executeQuery();
+            List<Seller> list = new ArrayList<>();
+            Map<Integer, Department> map = new HashMap<>();
+            while (rs.next())
+            {
+                Department dep = map.get(rs.getInt("DepartmentId"));
+                if (dep == null)
+                {
+                    dep = instantiateDepartment(rs);
+                    map.put(rs.getInt("DepartmentId"), dep);
+                }
+                Seller obj = instantiateSeller(rs, dep);
+                list.add(obj);
+            }
+            System.out.println("[LOG] Busca por ID executada com sucesso");
+            return list;
+        }
+        catch (SQLException e)
+        {
+            System.out.println("[LOG] Erro ao realizar busca por Departamento");
+            throw new DbException(e.getMessage());
+        }
+        finally
+        {
+            Db.closeStatement(st);
+            System.out.println("[LOG] Statement encerrado com sucesso");
+            Db.closeResultSet(rs);
+            System.out.println("[LOG] ResultSet encerrado com sucesso");
+        }
     }
     
     @Override
