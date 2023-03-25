@@ -37,8 +37,10 @@ public class SellerDaoJDBC implements SellerDao {
             st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
             st.setDouble(4, obj.getBaseSalary());
             st.setInt(5, obj.getDepartment().getId());
-            
+    
+            System.out.println("[LOG] Executando query do Insert");
             int rowsAffected = st.executeUpdate();
+            System.out.println("[LOG] Insert executado com sucesso");
             if (rowsAffected > 0)
             {
                 ResultSet rs = st.getGeneratedKeys();
@@ -57,7 +59,7 @@ public class SellerDaoJDBC implements SellerDao {
         }
         catch (SQLException e)
         {
-            System.out.println("[LOG] Erro ao realizar busca por Id");
+            System.out.println("[LOG] Erro ao realizar o Insert");
             throw new DbException(e.getMessage());
         }
         finally
@@ -88,7 +90,7 @@ public class SellerDaoJDBC implements SellerDao {
         }
         catch (SQLException e)
         {
-            System.out.println("[LOG] Erro ao realizar busca por Id");
+            System.out.println("[LOG] Erro ao realizar o Update");
             throw new DbException(e.getMessage());
         }
         finally
@@ -111,18 +113,18 @@ public class SellerDaoJDBC implements SellerDao {
             
             int rows = st.executeUpdate();
             
-            if (rows == 0)
+            if (rows != 0)
             {
-                System.out.println("[LOG] Nenhum vendedor foi deletado!");
+                System.out.println("[LOG] Vendedor deletado com sucesso!");
             }
             else
             {
-                System.out.println("[LOG] Vendedor deletado com sucesso!.");
+                System.out.println("[LOG] Nenhum vendedor foi deletado!");
             }
         }
         catch (SQLException e)
         {
-            System.out.println("[LOG] Erro ao realizar busca por Id");
+            System.out.println("[LOG] Erro ao realizar o Delete");
             throw new DbException(e.getMessage());
         }
         finally
