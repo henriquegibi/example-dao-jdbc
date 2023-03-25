@@ -6,10 +6,7 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +23,48 @@ public class SellerDaoJDBC implements SellerDao {
     @Override
     public void insert(Seller obj)
     {
-    
+        PreparedStatement st = null;
+        try
+        {
+            st = conn.prepareStatement(
+                    "INSERT INTO seller " +
+                        "(Name, Email, BirthDate, BaseSalary, DepartmentId) " +
+                        "VALUES " +
+                        "(?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            st.setString(1, obj.getName());
+            st.setString(2, obj.getEmail());
+            st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+            st.setDouble(4, obj.getBaseSalary());
+            st.setInt(5, obj.getDepartment().getId());
+            
+            int rowsAffected = st.executeUpdate();
+            if (rowsAffected > 0)
+            {
+                ResultSet rs = st.getGeneratedKeys();
+                if (rs.next())
+                {
+                    obj.setId(rs.getInt(1));
+                }
+                Db.closeResultSet(rs);
+                System.out.println("[LOG] ResultSet encerrado com sucesso");
+            }
+            else
+            {
+                System.out.println("[LOG] Não foi possível fazer o update!");
+                throw new DbException("Erro Inesperado! Nenhuma linha afetada! Verifique integridade do banco de dados!");
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("[LOG] Erro ao realizar busca por Id");
+            throw new DbException(e.getMessage());
+        }
+        finally
+        {
+            Db.closeStatement(st);
+            System.out.println("[LOG] Statement encerrado com sucesso");
+        }
     }
     
     @Override
